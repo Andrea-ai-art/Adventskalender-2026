@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Andrea's Adventskalender 2025</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#f7fbff;
+    --panel:#ffffff;
+    --accent:#3b6ea5; /* blau */
+    --metal:#c9d6df;  /* silber */
+    --gold:#d4caa7;
+    --shadow:rgba(15,25,40,0.08);
+  }
+  html,body{height:100%;margin:0;font-family:Roboto,system-ui,Segoe UI,Arial; background: radial-gradient(circle at top right, #eef6ff, var(--bg)); color:#123; }
+  .wrap{max-width:1100px;margin:24px auto;padding:28px;}
+  header{display:flex;align-items:center;gap:18px}
+  .title{
+    font-size:28px;color:var(--accent);font-weight:700;
+  }
+  .subtitle{color:#456; font-size:14px;margin-top:6px}
+  .frame{
+    margin-top:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.8), rgba(245,250,255,0.95));
+    border-radius:18px;padding:28px; box-shadow: 0 6px 30px var(--shadow);
+    border:1px solid rgba(220,225,230,0.6);
+  }
+
+  /* calendar grid */
+  .calendar{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap:14px;
+    padding:18px;
+  }
+  @media (max-width:800px){ .calendar{grid-template-columns:repeat(4,1fr);} }
+  @media (max-width:480px){ .calendar{grid-template-columns:repeat(3,1fr);} }
+
+  .door{
+    position:relative;
+    height:120px;
+    background: linear-gradient(180deg,#fff,#4588F8);
+    border-radius:10px;
+    border: 1px solid rgba(200,210,220,0.8);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    cursor:pointer; perspective:900px;
+    overflow:visible;
+  }
+  .door.locked{cursor:default; opacity:0.6; filter:grayscale(0.05);}
+
+  /* number style (verschnörkelt) */
+  .num{
+    font-family:'Great Vibes', serif;
+    font-size:44px;
+    color: #1E90FF;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.05);
+  }
+
+  /* inner door flap (for animation) */
+  .flap{
+    position:absolute; inset:6px; border-radius:8px;
+    background: linear-gradient(180deg,#fff,#eaf2fb);
+    transform-origin:left center;
+    transition: transform 600ms cubic-bezier(.2,.9,.2,1), box-shadow 400ms;
+    display:flex; align-items:center; justify-content:center;
+    backface-visibility:hidden;
+    border:1px solid rgba(200,210,220,0.9);
+  }
+  .door.open .flap{
+    transform: rotateY(-140deg) translateX(-6px);
+    box-shadow: 0 18px 40px rgba(10,20,40,0.18);
+  }
+
+  /* reveal panel (behind the flap) */
+  .panel{
+    position:absolute; inset:6px; border-radius:8px;
+    background: linear-gradient(180deg, rgba(240,246,255,0.9), rgba(250,252,255,0.95));
+    display:flex; align-items:center; justify-content:center;
+    padding:10px; text-align:center;
+    font-size:13px; color:#234; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    border:1px dashed rgba(180,200,220,0.6);
+  }
+
+  .hint{font-size:13px;color:#456; margin-top:8px}
+  .countdown{font-weight:500;color:#234; margin-left:auto; text-align:right}
+
+  /* modal */
+  .modal{
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(6,10,20,0.45); z-index:60;
+  }
+  .modal .box{
+    width:min(720px,92%); background:var(--panel); border-radius:12px; padding:20px; box-shadow:0 14px 40px rgba(0,0,0,0.45);
+    border:1px solid rgba(220,225,230,0.7);
+  }
+  .modal h3{margin:0 0 12px 0; color:var(--accent)}
+  .modal p{margin:8px 0;color:#334}
+  .btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;margin:6px 6px 0 0;}
+  .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+
+  footer{margin-top:18px;color:#6a7890;font-size:13px; text-align:center}
+  .tiny{font-size:12px;color:#8aa}
+
+  /* Sanfter Einblendeeffekt für den Text */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeIn 1.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* ❄ Schneeflocken-Stil */
+#snowContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none; /* nichts blockieren */
+  z-index: 9999; /* über allem, aber nicht klick-blockierend */
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  color: #cfe8ff; /* sanftes Eisblau */
+  font-size: 1.2em;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.85;
+  animation: fall linear infinite, sway ease-in-out infinite;
+  text-shadow:
+    0 0 10px rgba(180, 210, 255, 0.8),
+    0 0 20px rgba(220, 240, 255, 0.6),
+    0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+/* vertikaler Fall */
+@keyframes fall {
+  0% { transform: translateY(-10px); opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0.3; }
+}
+
+/* leichtes Hin-und-Her-Schwingen */
+@keyframes sway {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(20px); }
+  100% { transform: translateX(0); }
+}
+
+</style>
+
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div style="width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,#fff,#eaf6ff);display:flex;align-items:center;justify-content:center;border:1px solid rgba(200,220,230,0.9);box-shadow:0 6px 18px rgba(0,0,0,0.04)">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.3 4.7L19 8l-3.4 2.6L16.6 15 12 12.7 7.4 15l1-4.4L5 8l4.7-1.3L12 2z" fill="#3b6ea5"/></svg>
+      </div>
+      <div>
+        <div class="title">Andrea's Adventskalender 2025</div>
+        <div class="subtitle">Ein kleines Türchen täglich – klassisch, elegant, überraschend.</div>
+      </div>
+      <div class="countdown" id="countdown"></div>
+    </header>
+
+    <div class="frame">
+      <div class="calendar" id="calendar">
+        <!-- 24 doors will be injected by JS -->
+      </div>
+
+      <div class="hint">Tipp: Die Türchen öffnen sich automatisch am jeweiligen Datum. Bereits geöffnete Türchen bleiben offen.</div>
+    </div>
+
+    <footer>
+      <div class="tiny">© Andrea — Adventskalender 2025. Platzhalter-Links können später geändert werden.</div>
+    </footer>
+  </div>
+
+  <!-- modal -->
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3 id="modalTitle">Tür</h3>
+      <p id="modalBody">Inhalt</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <a id="openLink" class="btn" target="_blank" rel="noopener">Öffnen</a>
+        <button id="closeBtn" class="btn secondary">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // config: placeholder links (change later easily)
+  const placeholders = [
+    "https://www.youtube.com/watch?v=j9jbdgZidu8&list=RDj9jbdgZidu8&start_radio=1", // Türchen 1: The Pogues
+    "https://www.youtube.com/watch?v=M3BZ8hnLyRc&list=RDM3BZ8hnLyRc&start_radio=1", // Türchen 2: The Killers & Bruce Springsteen
+    "https://www.youtube.com/watch?v=S0BDS0-ZwOw&list=RDS0BDS0-ZwOw&start_radio=1", // Türchen 3: Snow Patrol
+    "https://www.youtube.com/watch?v=pwxFDfbghyc&list=RDpwxFDfbghyc&start_radio=1", // Türchen 4: Stella Rose 
+    "https://www.youtube.com/watch?v=qPOTEs_yTJo&list=RDqPOTEs_yTJo&start_radio=1", // Türchen 5: Metallica
+    "https://www.youtube.com/watch?v=-9yYJ6ZAYns&list=RD-9yYJ6ZAYns&start_radio=1", // Türchen 6: Ozzy Osbourne
+    "https://www.youtube.com/watch?v=orgnOgq1wGE&list=RDorgnOgq1wGE&start_radio=1", // Türchen 7: Depeche Mode
+    "https://www.youtube.com/watch?v=PTslBTBl1X8&list=RDPTslBTBl1X8&start_radio=1", // Türchen 8: Slade
+    "https://www.youtube.com/watch?v=t365MuktYQs&list=RDt365MuktYQs&start_radio=1", // Türchen 9: David Bowie
+    "https://www.youtube.com/watch?v=41cvukwmqhk&list=RD41cvukwmqhk&start_radio=1", // Türchen 10: Bob Seger
+    "https://www.youtube.com/watch?v=2_hAuuJptLs", // Türchen 11: Halo KI by Andrea
+    "https://www.youtube.com/watch?v=Kw-q_34RSxc&list=RDKw-q_34RSxc&start_radio=1", // Türchen 12: Guns 'N Roses
+    "https://www.youtube.com/watch?v=2RXzgQRrK28&list=RD2RXzgQRrK28&start_radio=1", // Türchen 13: Genesis
+    "https://www.youtube.com/watch?v=PzUAgQCNx_U&list=RDPzUAgQCNx_U&start_radio=1", // Türchen 14: Steelheart
+    "https://www.youtube.com/watch?v=rP1yzK2KKSs&list=RDrP1yzK2KKSs&start_radio=1", // Türchen 15: Kiss
+    "https://www.youtube.com/watch?v=JfTganSU_qE&list=RDJfTganSU_qE&start_radio=1", // Türchen 16: Dream Theater
+    "https://www.youtube.com/watch?v=eVTXPUF4Oz4&list=RDeVTXPUF4Oz4&start_radio=1", // Türchen 17: Linkin Park
+    "https://www.youtube.com/watch?v=amedt5dpUoI&list=RDamedt5dpUoI&start_radio=1", // Türchen 18: SYML Oblivion
+    "https://www.youtube.com/watch?v=qw2TD91Nytg&list=RDqw2TD91Nytg&start_radio=1", // Türchen 19: Queen
+    "https://www.youtube.com/watch?v=2EPubtqD4XM&list=RD2EPubtqD4XM&start_radio=1", // Türchen 20: Fury in the Slaughterhouse
+    "https://www.youtube.com/watch?v=CK_BcyKOAt4", // Türchen 21: Pink Floyd
+    "https://www.youtube.com/watch?v=36_i2jf8p_I&list=RD36_i2jf8p_I&start_radio=1", // Türchen 22: Jeff Buckley
+    "https://www.youtube.com/watch?v=LoMn8tURL_E&list=RDLoMn8tURL_E&start_radio=1", // Türchen 23: John Lennon
+    "https://www.youtube.com/watch?v=GPANBPHEjwo&list=RDGPANBPHEjwo&start_radio=1", // Türchen 24: Celtic Woman
+  ];
+
+  const calendarEl = document.getElementById('calendar');
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const openLink = document.getElementById('openLink');
+  const closeBtn = document.getElementById('closeBtn');
+  const countdownEl = document.getElementById('countdown');
+
+  const today = new Date();
+  // target year & month:
+  const YEAR = 2025;
+  const MONTH = 11; // December: month index 11
+
+  // create doors
+  for(let i=1;i<=24;i++){
+    const door = document.createElement('div');
+    door.className = 'door';
+    door.dataset.day = i;
+
+    const flap = document.createElement('div');
+    flap.className = 'flap';
+    flap.innerHTML = '<div class="num">'+i+'</div>';
+
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.innerHTML = '<div>Tür '+i+'</div>';
+
+    door.appendChild(panel);
+    door.appendChild(flap);
+    calendarEl.appendChild(door);
+  }
+
+  // helper: get status from storage
+  function isOpened(day){ return localStorage.getItem('advent_opened_'+day) === '1'; }
+  function setOpened(day){ localStorage.setItem('advent_opened_'+day,'1'); }
+
+  // check date allowed
+function isAllowed(day) {
+  // allow if current date >= day of Dec YEAR
+  const allowedDate = new Date(YEAR, MONTH, day, 0, 0, 0);
+  return true; // Türchen öffnen sich bei Erreichen Datum // today >= allowedDate
+}
+
+  // build UI
+  function refresh(){
+    const doors = document.querySelectorAll('.door');
+    doors.forEach(d=>{
+      const day = parseInt(d.dataset.day,10);
+      d.classList.remove('open','locked');
+      if(isOpened(day)){
+        d.classList.add('open');
+      } else if(!isAllowed(day)){
+        d.classList.add('locked');
+      }
+    });
+
+    // countdown if before Dec 1
+    const dec1 = new Date(YEAR, MONTH, 1, 0,0,0);
+    if(today < dec1){
+      const diff = dec1 - today;
+      const days = Math.ceil(diff / (1000*60*60*24));
+      countdownEl.innerHTML = `<div style="font-size:14px;color:#345">Noch ${days} Tag(e) bis 01.12.2025</div>`;
+    } else {
+      countdownEl.innerHTML = '<div style="font-size:14px;color:#345">Viel Spaß – öffne ein Türchen!</div>';
+    }
+  }
+
+  refresh();
+
+  // door click handler
+  calendarEl.addEventListener('click', e=>{
+    const door = e.target.closest('.door');
+    if(!door) return;
+    const day = parseInt(door.dataset.day,10);
+
+    if(!isAllowed(day)){
+      // user clicked too early
+      modalTitle.innerText = 'Noch nicht verfügbar';
+      modalBody.innerText = 'Dieses Türchen kann erst am ' + new Date(YEAR, MONTH, day).toLocaleDateString() + ' geöffnet werden.';
+      openLink.style.display = 'none';
+      modal.style.display = 'flex';
+      return;
+    }
+
+    // open door animation and show link
+    if(!isOpened(day)){
+      door.classList.add('open');
+      setOpened(day);
+    } else {
+      door.classList.add('open');
+    }
+
+  // show modal with placeholder link
+modalTitle.innerText = 'Tür ' + day;
+
+// kleine festliche Zufallstexte 🎄
+const festiveMessages = [
+  '🔔<br>Klicke auf "Öffnen", um dein Geschenk zu entdecken!',
+  '🎁<br>Eine kleine Überraschung wartet auf dich!',
+  '✨<br>Lass dich überraschen – Frohe Vorweihnachtszeit!',
+  '❄️<br>Ein Glöckchen klingt, ein Lichtlein brennt – öffne dein Türchen!',
+  '🌟<br>Etwas Schönes verbirgt sich hinter diesem Türchen!'
+];
+
+// zufällige Nachricht auswählen
+const randomMessage = festiveMessages[Math.floor(Math.random() * festiveMessages.length)];
+
+// Glöckchensound abspielen 🔔
+const bell = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_3d1c3b7c16.mp3?filename=small-bell-ding-1048.mp3');
+bell.volume = 0.3; // leise und dezent
+bell.play().catch(() => {}); // Fehler ignorieren, falls Browser blockiert
+
+// Einblendeffekt per CSS aktivieren ✨
+modalBody.innerHTML = `<div class="fade-in">${randomMessage}</div>`;
+
+// Link anzeigen
+openLink.href = placeholders[day-1] || '#';
+openLink.style.display = 'inline-block';
+modal.style.display = 'flex';
+
+  });
+
+  closeBtn.addEventListener('click', ()=>{ modal.style.display='none'; });
+
+  // close modal on background click
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) modal.style.display='none'; });
+
+  // play soft bell chime periodically (very subtle)
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.06; // very quiet
+    masterGain.connect(ctx.destination);
+
+    function bell(time){
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      // inharmonic bell-ish frequencies
+      o.frequency.setValueAtTime(880, time);
+      o.frequency.exponentialRampToValueAtTime(1320, time+0.3);
+      g.gain.setValueAtTime(0, time);
+      g.gain.linearRampToValueAtTime(0.08, time+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, time+1.8);
+      o.connect(g); g.connect(masterGain);
+      o.start(time); o.stop(time+2.2);
+    }
+
+    function scheduleBells(){
+      const now = ctx.currentTime;
+      bell(now + 0.3);
+      // schedule gentle repeating bells every ~8-12 seconds randomly to avoid loop monotony
+      const nextDelay = 8 + Math.random()*6;
+      setTimeout(scheduleBells, nextDelay*1000);
+    }
+
+    // resume context on first user interaction (autoplay policy)
+    function startAudio(){
+      if(ctx.state === 'suspended'){ ctx.resume(); }
+      scheduleBells();
+      window.removeEventListener('click', startAudio);
+      window.removeEventListener('keydown', startAudio);
+    }
+    window.addEventListener('click', startAudio);
+    window.addEventListener('keydown', startAudio);
+  } catch(e){
+    console.warn('Audio not supported', e);
+  }
+  
+})();
+  
+</script>
+<!-- Einziger Container -->
+<!-- Schneeflocken Container direkt unter <body> -->
+<div id="snowContainer"></div>
+
+<style>
+  /* Container fix über dem gesamten Bildschirm */
+  #snowContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Klicks gehen durch */
+    overflow: visible;
+    z-index: 9999; /* Über allem */
+  }
+
+  .snowflake {
+    position: absolute;
+    top: -2em; /* Start leicht oberhalb */
+    font-size: 1.2em;
+    color: #b0c4de;
+    user-select: none;
+    pointer-events: none;
+    animation-name: fall, sway, rotate;
+    animation-timing-function: linear, ease-in-out, linear;
+    animation-iteration-count: infinite, infinite, infinite;
+  }
+
+  @keyframes fall {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(110vh); } /* über volle Höhe */
+  }
+
+  @keyframes sway {
+    0%   { transform: translateX(0); }
+    50%  { transform: translateX(20px); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes rotate {
+    0%   { transform: rotate(0deg); }
+    50%  { transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+const snowContainer = document.getElementById('snowContainer');
+const numFlakes = 50;
+
+for(let i=0; i<numFlakes; i++){
+  const flake = document.createElement('div');
+  flake.className = 'snowflake';
+  flake.textContent = '❄';
+
+  flake.style.left = Math.random() * 100 + 'vw';
+  flake.style.fontSize = (12 + Math.random()*18) + 'px';
+
+  // Zufällige Animationsdauer & Delay
+  const fallDuration = 5 + Math.random()*10;
+  const swayDuration = 2 + Math.random()*3;
+  const rotateDuration = 3 + Math.random()*3;
+  const delay = Math.random() * 5;
+
+  flake.style.animation = `fall ${fallDuration}s linear infinite ${delay}s, 
+                           sway ${swayDuration}s ease-in-out infinite ${delay}s, 
+                           rotate ${rotateDuration}s linear infinite ${delay}s`;
+
+  snowContainer.appendChild(flake);
+}
+</script>
+
+</body>
+</html>
