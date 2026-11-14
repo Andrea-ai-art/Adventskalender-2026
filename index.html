@@ -227,7 +227,7 @@
     "https://www.youtube.com/watch?v=QsRh51QJHJg&list=RDQsRh51QJHJg&start_radio=1", // Türchen 21: Knorkator
     "https://www.youtube.com/watch?v=nJvlvB93j2I&list=RDnJvlvB93j2I&start_radio=1", // Türchen 22: Die Toten Hosen
     "https://www.youtube.com/watch?v=7s9_veooy9c&list=RD7s9_veooy9c&start_radio=1", // Türchen 23: The Australian Pink Floyd Show
-    "https://www.youtube.com/watch?v=36_i2jf8p_I&list=RD36_i2jf8p_I&start_radio=1", // Türchen 22: Jeff Buckley
+    "https://www.youtube.com/watch?v=36_i2jf8p_I&list=RD36_i2jf8p_I&start_radio=1", // Türchen 24: Jeff Buckley
   ];
 
   const calendarEl = document.getElementById('calendar');
@@ -238,7 +238,6 @@
   const closeBtn = document.getElementById('closeBtn');
   const countdownEl = document.getElementById('countdown');
 
-  const today = new Date();
   // target year & month:
   const YEAR = 2026;
   const MONTH = 11; // December: month index 11
@@ -263,34 +262,43 @@
   }
 
   // helper: get status from storage
-  function isOpened(day){ return localStorage.getItem('advent_opened_'+day) === '1'; }
-  function setOpened(day){ localStorage.setItem('advent_opened_'+day,'1'); }
+  function isOpened(day){
+    return localStorage.getItem('advent_' + YEAR + '_opened_' + day) === '1';
+  }
+
+  function setOpened(day){
+    localStorage.setItem('advent_' + YEAR + '_opened_' + day, '1');
+  }
 
   // check date allowed
 function isAllowed(day) {
-  const now = new Date();
-  const allowedDate = new Date(YEAR, MONTH, day, 0, 0, 0);
-  return now >= allowedDate; // Türchen öffnen sich bei Erreichen Datum // today >= allowedDate
-}
+    const now = new Date();
+    const allowedDate = new Date(YEAR, MONTH, day, 0, 0, 0);
+    return now >= allowedDate;
+  }
 
-  // build UI
+  // build UI and update the countdown
   function refresh(){
     const doors = document.querySelectorAll('.door');
-    doors.forEach(d=>{
-      const day = parseInt(d.dataset.day,10);
-      d.classList.remove('open','locked');
-      if(isOpened(day)){
-        d.classList.add('open');
-      } else if(!isAllowed(day)){
-        d.classList.add('locked');
+
+    doors.forEach(door => {
+      const day = parseInt(door.dataset.day, 10);
+      door.classList.remove('open', 'locked');
+
+      // Date check comes first: an old saved state must never unlock a future door.
+      if (!isAllowed(day)) {
+        door.classList.add('locked');
+      } else if (isOpened(day)) {
+        door.classList.add('open');
       }
     });
 
-    // countdown if before Dec 1
-    const dec1 = new Date(YEAR, MONTH, 1, 0,0,0);
-    if(today < dec1){
-      const diff = dec1 - today;
-      const days = Math.ceil(diff / (1000*60*60*24));
+    const now = new Date();
+    const decemberFirst = new Date(YEAR, MONTH, 1, 0, 0, 0);
+
+    if (now < decemberFirst) {
+      const difference = decemberFirst - now;
+      const days = Math.ceil(difference / (1000 * 60 * 60 * 24));
       countdownEl.innerHTML = `<div style="font-size:14px;color:#345">Noch ${days} Tag(e) bis 01.12.2026</div>`;
     } else {
       countdownEl.innerHTML = '<div style="font-size:14px;color:#345">Viel Spaß – öffne ein Türchen!</div>';
@@ -298,6 +306,14 @@ function isAllowed(day) {
   }
 
   refresh();
+
+  // Update automatically at least once per minute (including midnight unlocks).
+  setInterval(refresh, 60000);
+
+  // Refresh when the browser tab becomes visible again.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refresh();
+  });
 
   // door click handler
   calendarEl.addEventListener('click', e=>{
