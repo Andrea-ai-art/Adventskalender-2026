@@ -9,25 +9,25 @@
 
 <style>
   :root{
-    --bg:#f7fbff;
-    --panel:#ffffff;
-    --accent:#3b6ea5; /* blau */
-    --metal:#c9d6df;  /* silber */
-    --gold:#d4caa7;
-    --shadow:rgba(15,25,40,0.08);
+    --bg:#0b1928;
+    --panel:#172b3e;
+    --accent:#c47b4a; /* kupfer */
+    --metal:#29445a;  /* nachtblau */
+    --gold:#e0ad78;
+    --shadow:rgba(0,0,0,0.32);
   }
-  html,body{height:100%;margin:0;font-family:Roboto,system-ui,Segoe UI,Arial; background: radial-gradient(circle at top right, #eef6ff, var(--bg)); color:#123; }
+  html,body{height:100%;margin:0;font-family:Roboto,system-ui,Segoe UI,Arial; background: radial-gradient(circle at top right, #203b52, var(--bg)); color:#f2e6d8; }
   .wrap{max-width:1100px;margin:24px auto;padding:28px;}
   header{display:flex;align-items:center;gap:18px}
   .title{
     font-size:28px;color:var(--accent);font-weight:700;
   }
-  .subtitle{color:#456; font-size:14px;margin-top:6px}
+   .subtitle{color:#c5b6a8; font-size:14px;margin-top:6px}
   .frame{
     margin-top:18px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.8), rgba(245,250,255,0.95));
+    background:linear-gradient(145deg, #172e43, #0e2031);
     border-radius:18px;padding:28px; box-shadow: 0 6px 30px var(--shadow);
-    border:1px solid rgba(220,225,230,0.6);
+    border:1px solid rgba(196,123,74,0.48);
   }
 
   /* calendar grid */
@@ -43,33 +43,35 @@
   .door{
     position:relative;
     height:120px;
-    background: linear-gradient(180deg,#fff,#4588F8);
+    background: linear-gradient(145deg,#31536b,#10283c);
     border-radius:10px;
-    border: 1px solid rgba(200,210,220,0.8);
+    border: 1px solid rgba(212,145,94,0.75);
     display:flex;align-items:center;justify-content:center;
     box-shadow: 0 6px 18px rgba(0,0,0,0.05);
     cursor:pointer; perspective:900px;
     overflow:visible;
   }
-  .door.locked{cursor:default; opacity:0.6; filter:grayscale(0.05);}
+  .door.locked{cursor:default; opacity:0.82; filter:grayscale(0.02);}
 
   /* number style (verschnörkelt) */
   .num{
     font-family:'Great Vibes', serif;
-    font-size:44px;
-    color: #1E90FF;
-    text-shadow: 0 2px 0 rgba(0,0,0,0.05);
+    font-size:46px;
+    font-weight:700;
+    color: #10283c;
+    -webkit-text-stroke: 0.35px rgba(7,20,32,0.65);
+    text-shadow: 0 1px 0 rgba(255,235,211,0.72), 0 2px 4px rgba(0,0,0,0.28);
   }
 
   /* inner door flap (for animation) */
   .flap{
     position:absolute; inset:6px; border-radius:8px;
-    background: linear-gradient(180deg,#fff,#eaf2fb);
+    background: linear-gradient(145deg,#f0c49a,#b96f45 58%,#8d4f32);
     transform-origin:left center;
     transition: transform 600ms cubic-bezier(.2,.9,.2,1), box-shadow 400ms;
     display:flex; align-items:center; justify-content:center;
     backface-visibility:hidden;
-    border:1px solid rgba(200,210,220,0.9);
+    border:1px solid rgba(255,220,185,0.72);
   }
   .door.open .flap{
     transform: rotateY(-140deg) translateX(-6px);
@@ -79,32 +81,32 @@
   /* reveal panel (behind the flap) */
   .panel{
     position:absolute; inset:6px; border-radius:8px;
-    background: linear-gradient(180deg, rgba(240,246,255,0.9), rgba(250,252,255,0.95));
+    background: linear-gradient(145deg, #1c354a, #102538);
     display:flex; align-items:center; justify-content:center;
     padding:10px; text-align:center;
-    font-size:13px; color:#234; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-    border:1px dashed rgba(180,200,220,0.6);
+    font-size:13px; color:#f3e5d7; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    border:1px dashed rgba(205,145,99,0.65);
   }
 
-  .hint{font-size:13px;color:#456; margin-top:8px}
-  .countdown{font-weight:500;color:#234; margin-left:auto; text-align:right}
+   .hint{font-size:13px;color:#c5b6a8; margin-top:8px}
+  .countdown{font-weight:500;color:#ead7c5; margin-left:auto; text-align:right}
 
   /* modal */
   .modal{
     position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    background:rgba(6,10,20,0.45); z-index:60;
+    background:rgba(3,9,16,0.78); z-index:60;
   }
   .modal .box{
     width:min(720px,92%); background:var(--panel); border-radius:12px; padding:20px; box-shadow:0 14px 40px rgba(0,0,0,0.45);
-    border:1px solid rgba(220,225,230,0.7);
+    border:1px solid rgba(196,123,74,0.55);
   }
   .modal h3{margin:0 0 12px 0; color:var(--accent)}
-  .modal p{margin:8px 0;color:#334}
+  .modal p{margin:8px 0;color:#e6d8ca}
   .btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;margin:6px 6px 0 0;}
-  .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+  .btn.secondary{background:#20384c;color:#f0c49a;border:1px solid rgba(196,123,74,0.55)}
 
-  footer{margin-top:18px;color:#6a7890;font-size:13px; text-align:center}
-  .tiny{font-size:12px;color:#8aa}
+  footer{margin-top:18px;color:#a99b8e;font-size:13px; text-align:center}
+  .tiny{font-size:12px;color:#a99b8e}
 
   /* Sanfter Einblendeeffekt für den Text */
 .fade-in {
@@ -134,15 +136,15 @@
 .snowflake {
   position: absolute;
   top: -10px;
-  color: #cfe8ff; /* sanftes Eisblau */
+  color: #e8c09e; /* warmer Kupferschimmer */
   font-size: 1.2em;
   user-select: none;
   pointer-events: none;
   opacity: 0.85;
   animation: fall linear infinite, sway ease-in-out infinite;
   text-shadow:
-    0 0 10px rgba(180, 210, 255, 0.8),
-    0 0 20px rgba(220, 240, 255, 0.6),
+    0 0 10px rgba(222, 160, 112, 0.55),
+    0 0 20px rgba(222, 160, 112, 0.32),
     0 0 30px rgba(255, 255, 255, 0.4);
 }
 
@@ -165,8 +167,8 @@
 <body>
   <div class="wrap">
     <header>
-      <div style="width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,#fff,#eaf6ff);display:flex;align-items:center;justify-content:center;border:1px solid rgba(200,220,230,0.9);box-shadow:0 6px 18px rgba(0,0,0,0.04)">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.3 4.7L19 8l-3.4 2.6L16.6 15 12 12.7 7.4 15l1-4.4L5 8l4.7-1.3L12 2z" fill="#3b6ea5"/></svg>
+      <div style="width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,#27445a,#102438);display:flex;align-items:center;justify-content:center;border:1px solid rgba(196,123,74,0.7);box-shadow:0 6px 18px rgba(0,0,0,0.28)">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.3 4.7L19 8l-3.4 2.6L16.6 15 12 12.7 7.4 15l1-4.4L5 8l4.7-1.3L12 2z" fill="#d08a58"/></svg>
       </div>
       <div>
         <div class="title">Andrea's Adventskalender 2026</div>
@@ -299,9 +301,9 @@ function isAllowed(day) {
     if (now < decemberFirst) {
       const difference = decemberFirst - now;
       const days = Math.ceil(difference / (1000 * 60 * 60 * 24));
-      countdownEl.innerHTML = `<div style="font-size:14px;color:#345">Noch ${days} Tag(e) bis 01.12.2026</div>`;
+      countdownEl.innerHTML = `<div style="font-size:14px;color:#ead7c5">Noch ${days} Tag(e) bis 01.12.2026</div>`;
     } else {
-      countdownEl.innerHTML = '<div style="font-size:14px;color:#345">Viel Spaß – öffne ein Türchen!</div>';
+      countdownEl.innerHTML = '<div style="font-size:14px;color:#ead7c5">Viel Spaß – öffne ein Türchen!</div>';
     }
   }
 
@@ -440,7 +442,7 @@ modal.style.display = 'flex';
     position: absolute;
     top: -2em; /* Start leicht oberhalb */
     font-size: 1.2em;
-    color: #b0c4de;
+    color: #d9a77e;
     user-select: none;
     pointer-events: none;
     animation-name: fall, sway, rotate;
